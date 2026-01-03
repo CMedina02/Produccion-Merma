@@ -1,0 +1,138 @@
+/* --- CONFIGURACIÓN GENERAL --- */
+:root {
+  --primary-color: #0a1a44;    /* Azul Oscuro Corporativo */
+  --secondary-color: #3498db;  /* Azul Claro */
+  --success-color: #27ae60;    /* Verde */
+  --bg-color: #f8f9fa;         /* Gris muy claro fondo */
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- HEADER --- */
+.hero-section {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #1a252f 100%);
+  color: white;
+  padding: 3rem 0 4rem 0;
+  margin-bottom: -3rem;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.company-title {
+  font-weight: 700;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  opacity: 0.9;
+}
+
+/* --- TARJETA PRINCIPAL --- */
+.calculator-container {
+  flex: 1;
+  padding-bottom: 2rem;
+}
+
+.card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  background: white;
+}
+
+/* --- INPUTS --- */
+.form-control, .form-select {
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Botones +/- */
+.btn-outline-secondary {
+  border-color: #ced4da;
+  color: #6c757d;
+}
+.btn-outline-secondary:hover {
+  background-color: #e9ecef;
+  color: #333;
+}
+
+/* --- RESULTADOS --- */
+.result-section {
+  margin-top: 2rem;
+}
+
+.alert-success {
+  border-radius: 12px;
+}
+
+/* --- FOOTER --- */
+.footer {
+  margin-top: auto;
+  padding-bottom: 2rem;
+}
+
+/* --- RESPONSIVE TABLE (TRANSFORMACIÓN A TARJETAS) --- */
+@media screen and (max-width: 768px) {
+    /* 1. Ocultar los encabezados de la tabla (thead) */
+    .table thead {
+        display: none;
+    }
+
+    /* 2. Convertir las filas (tr) en Tarjetas */
+    .table tbody tr {
+        display: block;
+        margin-bottom: 1.5rem;
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+        overflow: hidden; /* Para que los bordes redondos funcionen */
+    }
+
+    /* 3. Ajustar cada celda (td) para que parezca un renglón */
+    .table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: right;
+    }
+
+    /* El último borde no es necesario */
+    .table tbody td:last-child {
+        border-bottom: none;
+        justify-content: center; /* Centrar botones de acción */
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+        background-color: #f8f9fa;
+    }
+
+    /* 4. AGREGAR LOS TÍTULOS (La Magia) */
+    /* Usamos el atributo 'data-label' del HTML para poner el título a la izquierda */
+    .table tbody td::before {
+        content: attr(data-label); /* Extrae el texto del atributo data-label */
+        font-weight: 700;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        text-align: left;
+        margin-right: 1rem;
+    }
+}

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Panel Admin - ETIQUETAS DEL SURESTE{% endblock %}
+
+{% block content %}
+<div class="hero-section" style="padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="fw-bold text-white mb-0">Panel de Administración</h2>
+                <p class="text-white-50 mb-0 small">Gestión de Inventario</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#addModal">
+            <i class="fas fa-plus-circle"></i> Nuevo Suaje
+        </button>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                    <strong>{{ '¡Aviso!' if category == 'error' else '¡Éxito!' }}</strong> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive-sm"> <table id="suajesTable" class="table table-hover mb-0 align-middle">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="py-3 ps-4">Código</th>
+                            <th class="py-3">Nombre</th>
+                            <th class="py-3 text-center">Cav.</th>
+                            <th class="py-3 text-end">Sep (mm)</th>
+                            <th class="py-3 text-end">Tam (mm)</th>
+                            <th class="py-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for suaje in suajes %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary" data-label="CÓDIGO">{{ suaje.suaje_code }}</td>
+                            <td data-label="NOMBRE">{{ suaje.nombre }}</td>
+                            <td class="text-center" data-label="CAVIDADES">
+                                <span class="badge bg-secondary">{{ suaje.cavidades }}</span>
+                            </td>
+                            <td class="text-end" data-label="SEPARACIÓN">{{ suaje.separacion_mm }}</td>
+                            <td class="text-end" data-label="TAMAÑO">{{ suaje.tamano_mm }}</td>
+                            <td class="text-center" data-label="ACCIONES">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            onclick="editSuaje('{{ suaje.id }}', '{{ suaje.suaje_code }}', '{{ suaje.nombre }}', '{{ suaje.cavidades }}', '{{ suaje.separacion_mm }}', '{{ suaje.tamano_mm }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form action="{{ url_for('admin_delete', id=suaje.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar {{ suaje.suaje_code }}?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Agregar Nuevo Suaje</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('admin_add') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Código</label>
+                        <input type="text" name="suaje_code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 mb-3">
+                            <label class="form-label">Cavidades</label>
+                            <input type="number" name="cavidades" class="form-control" required>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label class="form-label">Sep. (mm)</label>
+                            <input type="number" name="separacion_mm" step="0.01" class="form-control" required>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label class="form-label">Tam. (mm)</label>
+                            <input type="number" name="tamano_mm" step="0.01" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Editar Suaje</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Código</label>
+                        <input type="text" name="suaje_code" id="edit_code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 mb-3">
+                            <label class="form-label">Cavidades</label>
+                            <input type="number" name="cavidades" id="edit_cavidades" class="form-control" required>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label class="form-label">Sep. (mm)</label>
+                            <input type="number" name="separacion_mm" id="edit_separacion" step="0.01" class="form-control" required>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label class="form-label">Tam. (mm)</label>
+                            <input type="number" name="tamano_mm" id="edit_tamano" step="0.01" class="form-control" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#suajesTable').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
+            },
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+            order: [[0, 'asc']]
+        });
+    });
+
+    function editSuaje(id, code, nombre, cavidades, separacion, tamano) {
+        $('#editForm').attr('action', '/admin/edit/' + id);
+        $('#edit_code').val(code);
+        $('#edit_nombre').val(nombre);
+        $('#edit_cavidades').val(cavidades);
+        $('#edit_separacion').val(separacion);
+        $('#edit_tamano').val(tamano);
+        var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+        editModal.show();
+    }
+</script>
+{% endblock %}
