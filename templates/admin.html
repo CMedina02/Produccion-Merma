@@ -1,194 +1,539 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Admin Dashboard{% endblock %} {%
+block content %}
+<div class="container-fluid px-4">
+  <div class="dashboard-header text-center">
+    <h2 class="fw-bold mb-0">PANEL DE CONTROL</h2>
+    <p class="opacity-75">Sistema de Administración</p>
+  </div>
 
-{% block title %}Panel Admin - ETIQUETAS DEL SURESTE{% endblock %}
-
-{% block content %}
-<div class="hero-section" style="padding: 2rem 0; margin-bottom: 2rem;">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h2 class="fw-bold text-white mb-0">Panel de Administración</h2>
-                <p class="text-white-50 mb-0 small">Gestión de Inventario</p>
-            </div>
-            <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">
-                <i class="fas fa-sign-out-alt"></i> Salir
-            </a>
-        </div>
-    </div>
-</div>
-
-<div class="container pb-5">
-    <div class="d-flex justify-content-end mb-3">
-        <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#addModal">
-            <i class="fas fa-plus-circle"></i> Nuevo Suaje
+  <div
+    class="nav-card d-flex flex-column flex-md-row justify-content-between align-items-center"
+  >
+    <ul class="nav nav-pills mb-3 mb-md-0" id="adminTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link active"
+          id="suajes-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#tab-suajes"
+          type="button"
+          role="tab"
+        >
+          <i class="fas fa-database me-2"></i>Base de Datos
         </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          id="users-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#tab-users"
+          type="button"
+          role="tab"
+        >
+          <i class="fas fa-users me-2"></i>Usuarios
+        </button>
+      </li>
+    </ul>
+
+    <div class="d-flex gap-2">
+      <a
+        href="{{ url_for('index') }}"
+        class="btn btn-outline-primary btn-action btn-sm px-3"
+      >
+        <i class="fas fa-calculator me-1"></i> App
+      </a>
+      <a
+        href="{{ url_for('logout') }}"
+        class="btn btn-outline-danger btn-action btn-sm px-3"
+      >
+        <i class="fas fa-power-off me-1"></i> Salir
+      </a>
     </div>
+  </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
-                    <strong>{{ '¡Aviso!' if category == 'error' else '¡Éxito!' }}</strong> {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+  {% with messages = get_flashed_messages(with_categories=true) %} {% if
+  messages %} {% for category, message in messages %}
+  <div
+    class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show shadow-sm rounded-4 border-0 mb-4"
+  >
+    <strong>{{ '¡Aviso!' if category == 'error' else '¡Éxito!' }}</strong> {{
+    message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %} {% endif %} {% endwith %}
 
-    <div class="card shadow-sm border-0">
+  <div class="tab-content" id="adminTabsContent">
+    <div class="tab-pane fade show active" id="tab-suajes" role="tabpanel">
+      <div class="d-flex justify-content-end mb-3">
+        <button
+          class="btn btn-success btn-action px-4 py-2"
+          data-bs-toggle="modal"
+          data-bs-target="#suajeModal"
+          onclick="prepararAgregar()"
+        >
+          <i class="fas fa-plus me-2"></i>Nuevo Registro
+        </button>
+      </div>
+
+      <div class="table-card">
         <div class="card-body p-0">
-            <div class="table-responsive-sm"> <table id="suajesTable" class="table table-hover mb-0 align-middle">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="py-3 ps-4">Código</th>
-                            <th class="py-3">Nombre</th>
-                            <th class="py-3 text-center">Cav.</th>
-                            <th class="py-3 text-end">Sep (mm)</th>
-                            <th class="py-3 text-end">Tam (mm)</th>
-                            <th class="py-3 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for suaje in suajes %}
-                        <tr>
-                            <td class="ps-4 fw-bold text-primary" data-label="CÓDIGO">{{ suaje.suaje_code }}</td>
-                            <td data-label="NOMBRE">{{ suaje.nombre }}</td>
-                            <td class="text-center" data-label="CAVIDADES">
-                                <span class="badge bg-secondary">{{ suaje.cavidades }}</span>
-                            </td>
-                            <td class="text-end" data-label="SEPARACIÓN">{{ suaje.separacion_mm }}</td>
-                            <td class="text-end" data-label="TAMAÑO">{{ suaje.tamano_mm }}</td>
-                            <td class="text-center" data-label="ACCIONES">
-                                <div class="btn-group" role="group">
-                                    <button class="btn btn-sm btn-outline-primary" 
-                                            onclick="editSuaje('{{ suaje.id }}', '{{ suaje.suaje_code }}', '{{ suaje.nombre }}', '{{ suaje.cavidades }}', '{{ suaje.separacion_mm }}', '{{ suaje.tamano_mm }}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <form action="{{ url_for('admin_delete', id=suaje.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar {{ suaje.suaje_code }}?');">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+          <table
+            id="suajesTable"
+            class="table table-striped table-hover table-sm mb-0 align-middle small w-100"
+          >
+            <thead style="background: #f8f9fa">
+              <tr>
+                <th class="py-3 ps-3 text-primary">CÓDIGO</th>
+                <th class="py-3">NOMBRE</th>
+                <th class="py-3">MATERIAL</th>
+                <th class="py-3 text-center">DIENTES</th>
+                <th class="py-3 text-center text-warning">MED. EJE</th>
+                <th class="py-3 text-center text-warning">CAV. EJE</th>
+                <th class="py-3 text-center text-warning">SEP. EJE</th>
+                <th class="py-3 text-center text-info">MED. DES</th>
+                <th class="py-3 text-center text-info">CAV. DES</th>
+                <th class="py-3 text-center text-info">SEP. DES</th>
+                <th class="py-3 text-center bg-success text-white">FACTOR</th>
+                <th class="py-3 text-end pe-3">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in suajes %}
+              <tr>
+                <td class="ps-3 fw-bold text-primary text-nowrap">
+                  {{ s.suaje_code }}
+                </td>
+                <td class="text-break" style="min-width: 150px">
+                  {{ s.nombre }}
+                </td>
+                <td class="text-muted fst-italic">{{ s.material }}</td>
+                <td class="text-center fw-bold">{{ s.dientes }}</td>
+                <td class="text-center fw-bold">{{ s.med_eje_mm }}</td>
+                <td class="text-center">{{ s.cav_eje }}</td>
+                <td class="text-center">{{ s.sep_eje_mm }}</td>
+                <td class="text-center fw-bold">{{ s.med_des_mm }}</td>
+                <td class="text-center">{{ s.cav_des }}</td>
+                <td class="text-center">{{ s.sep_des_mm }}</td>
+                <td class="text-center fw-bold text-success fs-6">
+                  {{ s.metros_x_millar }}
+                </td>
+                <td class="text-end pe-3 text-nowrap">
+                  <button
+                    class="btn btn-light btn-sm rounded-circle shadow-sm border"
+                    style="width: 32px; height: 32px"
+                    onclick="editar('{{s.id}}','{{s.suaje_code}}','{{s.nombre}}','{{s.dientes}}','{{s.material}}','{{s.metros_x_millar}}','{{s.med_eje_mm}}','{{s.med_des_mm}}','{{s.cav_eje}}','{{s.cav_des}}','{{s.sep_eje_mm}}','{{s.sep_des_mm}}')"
+                  >
+                    <i class="fas fa-pen text-primary"></i>
+                  </button>
+                  <form
+                    action="{{ url_for('admin_delete', id=s.id) }}"
+                    method="POST"
+                    class="d-inline"
+                    onsubmit="return confirm('¿Eliminar {{ s.suaje_code }}?');"
+                  >
+                    <button
+                      class="btn btn-light btn-sm rounded-circle shadow-sm border ms-1"
+                      style="width: 32px; height: 32px"
+                    >
+                      <i class="fas fa-trash text-danger"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+      </div>
     </div>
+
+    <div class="tab-pane fade" id="tab-users" role="tabpanel">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="table-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h5 class="fw-bold mb-0">Gestión de Acceso</h5>
+              <button
+                class="btn btn-primary btn-action btn-sm px-3"
+                data-bs-toggle="modal"
+                data-bs-target="#userModal"
+              >
+                <i class="fas fa-user-plus me-2"></i>Crear Usuario
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead class="bg-light">
+                  <tr>
+                    <th class="ps-3 border-0">Usuario</th>
+                    <th class="border-0">Rol</th>
+                    <th class="text-end pe-3 border-0">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for u in usuarios %}
+                  <tr>
+                    <td class="ps-3 fw-bold">
+                      <div class="d-flex align-items-center">
+                        <div
+                          class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3"
+                          style="width: 40px; height: 40px"
+                        >
+                          <i class="fas fa-user text-secondary"></i>
+                        </div>
+                        {{ u.username }}
+                      </div>
+                    </td>
+                    <td>
+                      {% if u.role == 'admin' %}
+                      <span class="badge bg-danger rounded-pill px-3 py-2"
+                        >ADMIN</span
+                      >
+                      {% else %}
+                      <span
+                        class="badge bg-info text-dark rounded-pill px-3 py-2"
+                        >OPERADOR</span
+                      >
+                      {% endif %}
+                    </td>
+                    <td class="text-end pe-3">
+                      {% if u.username != 'admin' %}
+                      <form
+                        action="{{ url_for('user_delete', id=u.id) }}"
+                        method="POST"
+                        onsubmit="return confirm('¿Borrar a {{ u.username }}?');"
+                      >
+                        <button
+                          class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                        >
+                          Eliminar
+                        </button>
+                      </form>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">Agregar Nuevo Suaje</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="suajeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="modalTitle">Registro de Suaje</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form id="suajeForm" method="POST">
+        <div class="modal-body bg-light">
+          <div class="card mb-3 border-0 shadow-sm rounded-4">
+            <div class="card-body">
+              <h6 class="text-primary fw-bold mb-3 border-bottom pb-2">
+                Datos Generales
+              </h6>
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label fw-bold small">Código</label>
+                  <input
+                    type="text"
+                    name="suaje_code"
+                    id="f_code"
+                    class="form-control rounded-pill bg-light"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold small">Nombre</label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    id="f_nombre"
+                    class="form-control rounded-pill bg-light"
+                    required
+                  />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold small text-success"
+                    >Factor</label
+                  >
+                  <input
+                    type="number"
+                    step="any"
+                    name="metros_x_millar"
+                    id="f_factor"
+                    class="form-control rounded-pill border-success fw-bold"
+                    required
+                  />
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label small">Material</label>
+                  <input
+                    type="text"
+                    name="material"
+                    id="f_material"
+                    class="form-control rounded-pill bg-light"
+                  />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small">Dientes</label>
+                  <input
+                    type="number"
+                    name="dientes"
+                    id="f_dientes"
+                    class="form-control rounded-pill bg-light"
+                  />
+                </div>
+              </div>
             </div>
-            <form action="{{ url_for('admin_add') }}" method="POST">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Código</label>
-                        <input type="text" name="suaje_code" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" name="nombre" class="form-control" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-4 mb-3">
-                            <label class="form-label">Cavidades</label>
-                            <input type="number" name="cavidades" class="form-control" required>
-                        </div>
-                        <div class="col-4 mb-3">
-                            <label class="form-label">Sep. (mm)</label>
-                            <input type="number" name="separacion_mm" step="0.01" class="form-control" required>
-                        </div>
-                        <div class="col-4 mb-3">
-                            <label class="form-label">Tam. (mm)</label>
-                            <input type="number" name="tamano_mm" step="0.01" class="form-control" required>
-                        </div>
-                    </div>
+          </div>
+          <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body">
+              <h6 class="text-primary fw-bold mb-3 border-bottom pb-2">
+                Medidas Técnicas (mm)
+              </h6>
+              <div class="row g-3">
+                <div class="col-md-4 border-end">
+                  <label class="form-label small text-muted fw-bold">EJE</label>
+                  <div class="mb-2">
+                    <input
+                      type="number"
+                      step="any"
+                      name="med_eje_mm"
+                      id="f_med_eje"
+                      class="form-control form-control-sm rounded-pill"
+                      placeholder="Medida"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <input
+                      type="number"
+                      name="cav_eje"
+                      id="f_cav_eje"
+                      class="form-control form-control-sm rounded-pill"
+                      placeholder="Cavidad"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <input
+                      type="number"
+                      step="any"
+                      name="sep_eje_mm"
+                      id="f_sep_eje"
+                      class="form-control form-control-sm rounded-pill"
+                      placeholder="Separación"
+                    />
+                  </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Guardar</button>
+                <div class="col-md-4">
+                  <label class="form-label small text-muted fw-bold"
+                    >DESARROLLO</label
+                  >
+                  <div class="mb-2">
+                    <input
+                      type="number"
+                      step="any"
+                      name="med_des_mm"
+                      id="f_med_des"
+                      class="form-control form-control-sm rounded-pill"
+                      placeholder="Medida"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <input
+                      type="number"
+                      name="cav_des"
+                      id="f_cav_des"
+                      class="form-control form-control-sm rounded-pill"
+                      placeholder="Cavidad"
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <input
+                      type="number"
+                      step="any"
+                      name="sep_des_mm"
+                      id="f_sep_des"
+                      class="form-control form-control-sm rounded-pill"
+                      placeholder="Separación"
+                    />
+                  </div>
                 </div>
-            </form>
+                <div
+                  class="col-md-4 bg-light rounded-4 d-flex align-items-center justify-content-center"
+                >
+                  <small class="text-muted text-center fst-italic"
+                    >Precaución al editar.</small
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="modal-footer border-0">
+          <button
+            type="button"
+            class="btn btn-secondary rounded-pill"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary btn-action px-4">
+            Guardar
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Editar Suaje</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="editForm" method="POST">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Código</label>
-                        <input type="text" name="suaje_code" id="edit_code" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-4 mb-3">
-                            <label class="form-label">Cavidades</label>
-                            <input type="number" name="cavidades" id="edit_cavidades" class="form-control" required>
-                        </div>
-                        <div class="col-4 mb-3">
-                            <label class="form-label">Sep. (mm)</label>
-                            <input type="number" name="separacion_mm" id="edit_separacion" step="0.01" class="form-control" required>
-                        </div>
-                        <div class="col-4 mb-3">
-                            <label class="form-label">Tam. (mm)</label>
-                            <input type="number" name="tamano_mm" id="edit_tamano" step="0.01" class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Actualizar</button>
-                </div>
-            </form>
+<div class="modal fade" id="userModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold">Nuevo Usuario</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <form action="{{ url_for('user_add') }}" method="POST">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Nombre de Usuario</label>
+            <input
+              type="text"
+              name="username"
+              class="form-control form-control-lg rounded-pill bg-light"
+              placeholder="Ej. juan.perez"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Contraseña</label>
+            <input
+              type="password"
+              name="password"
+              class="form-control form-control-lg rounded-pill bg-light"
+              placeholder="******"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Rol</label>
+            <select
+              name="role"
+              class="form-select form-select-lg rounded-pill bg-light"
+            >
+              <option value="operador">Operador (Solo Calculadora)</option>
+              <option value="admin">Administrador (Total)</option>
+            </select>
+          </div>
         </div>
+        <div class="modal-footer border-0">
+          <button
+            type="button"
+            class="btn btn-light rounded-pill"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-dark btn-action px-4">
+            Crear Usuario
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+{% endblock %} {% block extra_js %}
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css"
+/>
+
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.colVis.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        $('#suajesTable').DataTable({
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
-            },
-            pageLength: 25,
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
-            order: [[0, 'asc']]
-        });
+  $(document).ready(function () {
+    $("#suajesTable").DataTable({
+      language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" },
+      pageLength: 50,
+      scrollX: true,
+      dom: '<"row mb-3 align-items-center"<"col-md-6"B><"col-md-6"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
+      buttons: [
+        {
+          extend: "colvis",
+          text: '<i class="fas fa-sliders-h me-2"></i> Ajustar Vista',
+          className: "btn btn-primary btn-sm btn-action px-3",
+          columns: ":not(:first-child):not(:last-child)",
+        },
+      ],
+      columnDefs: [
+        { targets: [3, 5, 6, 8, 9], visible: false },
+        { targets: -1, orderable: false },
+      ],
     });
+  });
 
-    function editSuaje(id, code, nombre, cavidades, separacion, tamano) {
-        $('#editForm').attr('action', '/admin/edit/' + id);
-        $('#edit_code').val(code);
-        $('#edit_nombre').val(nombre);
-        $('#edit_cavidades').val(cavidades);
-        $('#edit_separacion').val(separacion);
-        $('#edit_tamano').val(tamano);
-        var editModal = new bootstrap.Modal(document.getElementById('editModal'));
-        editModal.show();
-    }
+  function prepararAgregar() {
+    document.getElementById("suajeForm").reset();
+    document.getElementById("suajeForm").action = "{{ url_for('admin_add') }}";
+    document.getElementById("modalTitle").innerText = "Nuevo Suaje";
+  }
+
+  function editar(
+    id,
+    code,
+    nom,
+    dientes,
+    mat,
+    factor,
+    meje,
+    mdes,
+    ceje,
+    cdes,
+    seje,
+    sdes,
+  ) {
+    document.getElementById("suajeForm").action = "/admin/edit/" + id;
+    document.getElementById("modalTitle").innerText = "Editar " + code;
+
+    $("#f_code").val(code);
+    $("#f_nombre").val(nom);
+    $("#f_dientes").val(dientes);
+    $("#f_material").val(mat);
+    $("#f_factor").val(factor);
+
+    $("#f_med_eje").val(meje);
+    $("#f_med_des").val(mdes);
+    $("#f_cav_eje").val(ceje);
+    $("#f_cav_des").val(cdes);
+    $("#f_sep_eje").val(seje);
+    $("#f_sep_des").val(sdes);
+
+    var modal = new bootstrap.Modal(document.getElementById("suajeModal"));
+    modal.show();
+  }
 </script>
 {% endblock %}

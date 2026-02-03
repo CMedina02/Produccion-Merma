@@ -1,46 +1,78 @@
-{% extends "base.html" %}
-
-{% block title %}Login - Administrador{% endblock %}
-
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-lg">
-                <div class="card-body p-5">
-                    <h2 class="text-center mb-4">Acceso Administrador</h2>
-                    
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Usuario</label>
-                            <input type="text" class="form-control" id="username" name="username" required autofocus>
-                        </div>
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Contraseña</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">Iniciar Sesión</button>
-                        </div>
-                    </form>
-
-                    <div class="text-center mt-4">
-                        <a href="/" class="text-muted">← Volver a la calculadora</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+{% extends "base.html" %} {% block title %}Acceso - Etiquetas del Sureste{%
+endblock %} {% block content %}
+<div class="login-container">
+  <div class="login-card">
+    <div class="icon-circle">
+      <i class="fas fa-fingerprint"></i>
     </div>
+
+    <div class="text-center mb-5">
+      <h3 class="fw-bold brand-text mb-1">Bienvenido</h3>
+      <p class="text-muted small">Ingresa tus credenciales para continuar</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %}
+    <div
+      class="alert alert-danger border-0 shadow-sm rounded-4 mb-4 text-center small"
+      role="alert"
+    >
+      <i class="fas fa-exclamation-triangle me-1"></i> {{ message }}
+    </div>
+    {% endfor %} {% endif %} {% endwith %}
+
+    <form action="{{ url_for('login') }}" method="POST">
+      <div class="mb-4">
+        <input
+          type="text"
+          name="username"
+          class="form-control"
+          placeholder="Nombre de Usuario"
+          required
+          autofocus
+        />
+      </div>
+
+      <div class="mb-5 password-wrapper">
+        <input
+          type="password"
+          name="password"
+          id="passwordInput"
+          class="form-control"
+          placeholder="Contraseña"
+          required
+        />
+        <button
+          type="button"
+          class="toggle-password"
+          onclick="togglePassword()"
+        >
+          <i class="fas fa-eye" id="eyeIcon"></i>
+        </button>
+      </div>
+
+      <div class="d-grid mb-4">
+        <button type="submit" class="btn btn-primary btn-gradient shadow-lg">
+          Iniciar Sesión
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<script>
+  function togglePassword() {
+    const input = document.getElementById("passwordInput");
+    const icon = document.getElementById("eyeIcon");
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      input.type = "password";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
+  }
+</script>
 {% endblock %}

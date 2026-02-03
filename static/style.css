@@ -1,138 +1,386 @@
-/* --- CONFIGURACIÓN GENERAL --- */
+/* =========================================
+   1. CONFIGURACIÓN CORPORATIVA (AZUL OSCURO)
+   ========================================= */
 :root {
-  --primary-color: #0a1a44;    /* Azul Oscuro Corporativo */
-  --secondary-color: #3498db;  /* Azul Claro */
-  --success-color: #27ae60;    /* Verde */
-  --bg-color: #f8f9fa;         /* Gris muy claro fondo */
+  /* Paleta Corporativa Premium */
+  --primary-gradient: linear-gradient(135deg, #0a1a44 0%, #243b55 100%);
+  --bg-gradient: linear-gradient(135deg, #050b14 0%, #0a1a44 100%);
+
+  --accent-color: #3498db;
+  --secondary-color: #0a1a44;
+  --success-color: #27ae60;
+
+  --glass-bg: rgba(255, 255, 255, 0.98);
+  --glass-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--bg-color);
+  font-family: "Poppins", sans-serif;
+  background: var(--bg-gradient);
   color: #333;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* --- HEADER --- */
+/* --- TÍTULOS Y TEXTOS --- */
 .hero-section {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #1a252f 100%);
+  background: transparent;
   color: white;
-  padding: 3rem 0 4rem 0;
-  margin-bottom: -3rem;
-  border-radius: 0 0 20px 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 2rem 0 1rem 0;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .company-title {
   font-weight: 700;
   font-size: 1.8rem;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
-.subtitle {
-  font-size: 1.1rem;
+.subtitle,
+.hero-text {
+  font-size: 1rem;
+  opacity: 0.8;
+  color: #cbd5e1;
   font-weight: 300;
-  opacity: 0.9;
 }
 
-/* --- TARJETA PRINCIPAL --- */
-.calculator-container {
-  flex: 1;
-  padding-bottom: 2rem;
-}
-
-.card {
+/* =========================================
+   2. COMPONENTES GLOBALES
+   ========================================= */
+.card,
+.main-card,
+.login-card,
+.nav-card,
+.table-card {
+  background: #ffffff;
   border: none;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  overflow: hidden;
+}
+
+.modal-content {
+  border-radius: 20px;
+  border: none;
+  overflow: hidden;
+}
+.modal-header {
+  background: var(--primary-gradient);
+  color: white;
+  border-bottom: none;
+}
+.modal-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* --- INPUTS Y BOTONES --- */
+.form-control,
+.form-select {
+  border-radius: 50px;
+  padding: 0.7rem 1.2rem;
+  border: 1px solid #dce4ec;
+  background-color: #f8f9fa;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: white;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+}
+
+.btn-primary,
+.btn-action,
+.btn-gradient {
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 4px 10px rgba(10, 26, 68, 0.3);
+  transition: all 0.3s;
+}
+
+.btn-primary:hover,
+.btn-action:hover,
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(90deg, #0a1a44 0%, #3498db 100%);
+  color: white;
+}
+
+/* =========================================
+   3. ESTILOS ESPECÍFICOS: LOGIN
+   ========================================= */
+.login-container {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 3rem 2rem;
+  animation: floatIn 0.8s ease-out;
+  border-top: 5px solid var(--accent-color);
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  background: var(--primary-gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 10px 20px rgba(10, 26, 68, 0.2);
+  color: white;
+  font-size: 2rem;
+}
+
+.password-wrapper {
+  position: relative;
+}
+.toggle-password {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #aaa;
+  background: none;
+  border: none;
+  padding: 5px;
+}
+.toggle-password:hover {
+  color: var(--accent-color);
+}
+
+/* =========================================
+   4. ESTILOS ESPECÍFICOS: CALCULADORA
+   ========================================= */
+.app-container {
+  padding-top: 20px;
+  padding-bottom: 40px;
+}
+
+.input-group-pill {
+  background: #f1f5f9;
+  border-radius: 50px;
+  padding: 5px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+}
+.input-group-pill input {
+  border: none;
+  background: transparent;
+  font-weight: 800;
+  color: var(--secondary-color);
+  box-shadow: none !important;
+}
+.btn-circle-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
   background: white;
+  color: var(--secondary-color);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  transition: all 0.2s;
+}
+.btn-circle-mini:hover {
+  background: var(--secondary-color);
+  color: white;
+  transform: scale(1.1);
 }
 
-/* --- INPUTS --- */
-.form-control, .form-select {
-  padding: 0.8rem;
-  border-radius: 8px;
-  border: 1px solid #ced4da;
+.top-nav {
+  background: rgba(10, 26, 68, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 50px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: inline-flex;
+  gap: 10px;
+}
+.top-nav a {
+  color: #e2e8f0;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 20px;
+  transition: background 0.2s;
+  font-size: 0.85rem;
+}
+.top-nav a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+.btn-logout:hover {
+  background: rgba(231, 76, 60, 0.8) !important;
 }
 
-.form-control:focus, .form-select:focus {
-  border-color: var(--secondary-color);
-  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+.select2-container--bootstrap-5 .select2-selection {
+  border-radius: 50px !important;
+  border: 1px solid #dce4ec !important;
+  padding: 0.5rem 1rem !important;
+  min-height: 45px;
 }
 
-/* Botones +/- */
-.btn-outline-secondary {
-  border-color: #ced4da;
-  color: #6c757d;
+/* =========================================
+   5. ESTILOS ESPECÍFICOS: ADMIN
+   ========================================= */
+.dashboard-header {
+  color: white;
+  padding: 20px 0;
+  text-align: center;
 }
-.btn-outline-secondary:hover {
-  background-color: #e9ecef;
-  color: #333;
-}
-
-/* --- RESULTADOS --- */
-.result-section {
-  margin-top: 2rem;
-}
-
-.alert-success {
-  border-radius: 12px;
+.nav-card {
+  padding: 15px;
+  margin-bottom: 30px;
+  border-left: 5px solid var(--accent-color);
 }
 
-/* --- FOOTER --- */
-.footer {
-  margin-top: auto;
-  padding-bottom: 2rem;
+.nav-pills .nav-link {
+  color: #64748b;
+  font-weight: 600;
+  border-radius: 50px;
+  padding: 10px 25px;
+  transition: all 0.3s;
+}
+.nav-pills .nav-link.active {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 4px 10px rgba(10, 26, 68, 0.2);
+}
+.nav-pills .nav-link:hover:not(.active) {
+  background: #e2e8f0;
+  color: var(--secondary-color);
 }
 
-/* --- RESPONSIVE TABLE (TRANSFORMACIÓN A TARJETAS) --- */
+.table thead {
+  background: #f1f5f9;
+}
+.table thead th {
+  color: var(--secondary-color);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================
+   6. RESPONSIVE TABLE
+   ========================================= */
 @media screen and (max-width: 768px) {
-    /* 1. Ocultar los encabezados de la tabla (thead) */
-    .table thead {
-        display: none;
-    }
+  .table thead {
+    display: none;
+  }
+  .table tbody tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+    padding: 15px;
+  }
+  .table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: right;
+  }
+  .table tbody td:last-child {
+    border-bottom: none;
+    justify-content: center;
+    padding-top: 1.5rem;
+  }
+  .table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    text-align: left;
+    margin-right: 1rem;
+    opacity: 0.8;
+  }
+}
 
-    /* 2. Convertir las filas (tr) en Tarjetas */
-    .table tbody tr {
-        display: block;
-        margin-bottom: 1.5rem;
-        background-color: #fff;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        border: 1px solid #eee;
-        overflow: hidden; /* Para que los bordes redondos funcionen */
-    }
+/* =========================================
+   7. FOOTER (NUEVO ESTILO ELEGANTE)
+   ========================================= */
+.footer {
+  margin-top: auto; /* Empuja el footer al final si hay poco contenido */
+  padding: 2rem 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  text-align: center;
+}
+.footer strong {
+  color: white;
+  font-weight: 600;
+}
+/* =========================================
+   8. AJUSTES FINALES PARA MÓVIL (TAMAÑOS)
+   ========================================= */
+@media screen and (max-width: 576px) {
+  /* Títulos más pequeños para que no ocupen toda la pantalla */
+  .company-title {
+    font-size: 1.2rem;
+  }
 
-    /* 3. Ajustar cada celda (td) para que parezca un renglón */
-    .table tbody td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        border-bottom: 1px solid #f0f0f0;
-        text-align: right;
-    }
+  .hero-text,
+  .subtitle {
+    font-size: 0.9rem;
+  }
 
-    /* El último borde no es necesario */
-    .table tbody td:last-child {
-        border-bottom: none;
-        justify-content: center; /* Centrar botones de acción */
-        padding-top: 1.5rem;
-        padding-bottom: 1.5rem;
-        background-color: #f8f9fa;
-    }
+  /* Reducir el relleno de las tarjetas para ganar espacio */
+  .card,
+  .main-card,
+  .login-card {
+    padding: 1.5rem !important; /* Menos espacio interno */
+  }
 
-    /* 4. AGREGAR LOS TÍTULOS (La Magia) */
-    /* Usamos el atributo 'data-label' del HTML para poner el título a la izquierda */
-    .table tbody td::before {
-        content: attr(data-label); /* Extrae el texto del atributo data-label */
-        font-weight: 700;
-        color: var(--primary-color);
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        text-align: left;
-        margin-right: 1rem;
-    }
+  /* Ajustar el botón de login para que no se pegue a los bordes */
+  .login-container {
+    padding: 15px;
+  }
+
+  /* En la calculadora, el Select2 debe ocupar el 100% */
+  .select2-container {
+    width: 100% !important;
+  }
+
+  /* El botón de salir y admin en el header se apilan si no caben */
+  .top-nav {
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+    text-align: center;
+  }
 }

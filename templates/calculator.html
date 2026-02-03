@@ -1,249 +1,405 @@
-{% extends "base.html" %}
-
-{% block title %}Calculadora - ETIQUETAS Y ETIQUETADORAS DEL SURESTE{% endblock %}
-
-{% block content %}
-<div class="hero-section">
-    <div class="container">
-        <div class="text-center mb-4">
-            <h1 class="company-title">ETIQUETAS Y ETIQUETADORAS DEL SURESTE</h1>
-            <p class="subtitle">Calculadora de Material</p>
+{% extends "base.html" %} {% block title %}Calculadora - Etiquetas del Sureste{%
+endblock %} {% block content %}
+<div class="app-container">
+  <div class="container text-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="text-start">
+        <div
+          style="
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0a1a44;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+          "
+        >
+          <i class="fas fa-cube"></i>
         </div>
-    </div>
-</div>
+      </div>
 
-<div class="container calculator-container">
+      <div class="top-nav">
+        {% if user_role == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}"
+          ><i class="fas fa-cogs"></i> Admin</a
+        >
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="btn-logout"
+          ><i class="fas fa-power-off"></i> Salir</a
+        >
+      </div>
+    </div>
+
+    <h1 class="hero-text fw-bold mb-0">ETIQUETAS DEL SURESTE</h1>
+    <p class="hero-text opacity-75 lead">Calculadora de Material (2026)</p>
+  </div>
+
+  <div class="container">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-body p-4 p-md-5">
-                    
-                    <form id="calculatorForm" onsubmit="return false;"> 
-                        
-                        <div class="mb-4">
-                            <label for="suajeSelect" class="form-label fw-bold" style="color: #2c3e50;">1. Seleccione el Suaje</label>
-                            <select id="suajeSelect" class="form-select" style="width: 100%;" required>
-                                <option value="">🔍 Clic para buscar o escribir...</option>
-                            </select>
-                        </div>
+      <div class="col-lg-10">
+        <div class="card main-card p-4 p-md-5">
+          <form id="calculatorForm" onsubmit="return false;">
+            <div class="mb-5">
+              <label class="fw-bold text-secondary mb-2 ms-2 small"
+                >SELECCIONE EL SUAJE</label
+              >
+              <select id="suajeSelect" class="form-select form-select-lg">
+                <option value="">🔍 Buscar por código...</option>
+              </select>
+            </div>
 
-                        <div id="suajeInfoCard" class="card bg-light mb-4 border-start border-primary border-4" style="display: none;">
-                            <div class="card-body py-3">
-                                <h5 class="text-primary fw-bold mb-3" id="displayNombre">Nombre del Suaje</h5>
-                                <div class="row text-center g-2 align-items-stretch">
-                                    <div class="col-4">
-                                        <div class="p-2 bg-white rounded shadow-sm border h-100 d-flex flex-column justify-content-center">
-                                            <small class="d-block text-muted mb-1" style="font-size: 0.75rem;">CAVIDADES</small>
-                                            <span class="fw-bold text-dark" id="displayCavidades">0</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="p-2 bg-white rounded shadow-sm border h-100 d-flex flex-column justify-content-center">
-                                            <small class="d-block text-muted mb-1" style="font-size: 0.75rem;">SEPARACIÓN</small>
-                                            <span class="fw-bold text-dark" id="displaySeparacion">0.00</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="p-2 bg-white rounded shadow-sm border h-100 d-flex flex-column justify-content-center">
-                                            <small class="d-block text-muted mb-1" style="font-size: 0.75rem;">TAMAÑO</small>
-                                            <span class="fw-bold text-dark" id="displayTamano">0.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div
+              id="fichaTecnica"
+              class="card border-0 bg-light rounded-4 mb-5"
+              style="display: none; background: #f8faff"
+            >
+              <div class="card-body p-4">
+                <h3
+                  class="text-primary fw-bold text-center text-uppercase mb-4"
+                  id="txtNombre"
+                  style="letter-spacing: 1px"
+                >
+                  -
+                </h3>
 
-                        <input type="hidden" id="cavidades">
-                        <input type="hidden" id="separacion">
-                        <input type="hidden" id="tamano">
-
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label for="millares" class="form-label fw-bold" style="color: #2c3e50;">2. Cantidad de Millares</label>
-                                <div class="input-group input-group-lg">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="adjustValue('millares', -1)">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <input type="number" class="form-control text-center fw-bold" id="millares" value="1" step="0.01" placeholder="0" required>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="adjustValue('millares', 1)">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                    <span class="input-group-text bg-light">Mil</span>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="merma" class="form-label fw-bold" style="color: #2c3e50;">3. Merma Técnica</label>
-                                <div class="input-group input-group-lg">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="adjustValue('merma', -1)">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <input type="number" class="form-control text-center fw-bold" id="merma" value="5" step="0.01" placeholder="0" required>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="adjustValue('merma', 1)">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                    <span class="input-group-text bg-light">%</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="resultSection" class="result-section" style="display: none;">
-                            <div class="alert alert-success border-0 shadow-sm p-4" role="alert" style="background: linear-gradient(to right, #e8f5e9, #c8e6c9); border-left: 5px solid #2ecc71;">
-                                <h4 class="alert-heading text-center mb-3 text-success fw-bold">✅ CÁLCULO FINAL</h4>
-                                <div class="row text-center align-items-center mb-3">
-                                    <div class="col-md-6 mb-3 mb-md-0 border-end border-secondary">
-                                        <p class="mb-0 text-muted small text-uppercase">Material Neto</p>
-                                        <h3 class="mb-0 text-secondary" id="metrosBase">0 m</h3>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p class="mb-0 text-success small fw-bold text-uppercase">Total a Solicitar</p>
-                                        <h1 class="mb-0 text-success fw-bold" style="font-size: 3rem;" id="metrosConMerma">0.00</h1>
-                                        <small class="text-success">metros</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="d-grid gap-2">
-                                    <button type="button" class="btn btn-success fw-bold py-2" onclick="sendToWhatsapp()">
-                                        <i class="fab fa-whatsapp fa-lg me-2"></i> Enviar Reporte por WhatsApp
-                                    </button>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </form>
+                <div class="row g-3 text-center mb-4">
+                  <div class="col-6 col-md-3">
+                    <div class="bg-white p-3 rounded-4 shadow-sm h-100">
+                      <div
+                        class="text-uppercase text-muted"
+                        style="font-size: 0.7rem; font-weight: 800"
+                      >
+                        Código
+                      </div>
+                      <div class="fs-5 fw-bold text-dark" id="txtCodigo">-</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <div class="bg-white p-3 rounded-4 shadow-sm h-100">
+                      <div
+                        class="text-uppercase text-muted"
+                        style="font-size: 0.7rem; font-weight: 800"
+                      >
+                        Dientes
+                      </div>
+                      <div class="fs-5 fw-bold text-dark" id="txtDientes">
+                        0
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="bg-white p-3 rounded-4 shadow-sm h-100">
+                      <div
+                        class="text-uppercase text-muted"
+                        style="font-size: 0.7rem; font-weight: 800"
+                      >
+                        Material
+                      </div>
+                      <div
+                        class="fs-6 fw-bold text-dark text-break"
+                        id="txtMaterial"
+                      >
+                        -
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                <div
+                  class="accordion accordion-flush rounded-3 overflow-hidden border mb-3"
+                  id="accordionDetalles"
+                >
+                  <div class="accordion-item">
+                    <h2 class="accordion-header">
+                      <button
+                        class="accordion-button collapsed fw-bold text-secondary bg-white"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseInfo"
+                      >
+                        <i class="fas fa-ruler-combined me-2"></i> Ver Medidas
+                        Técnicas
+                      </button>
+                    </h2>
+                    <div
+                      id="collapseInfo"
+                      class="accordion-collapse collapse"
+                      data-bs-parent="#accordionDetalles"
+                    >
+                      <div class="accordion-body bg-white">
+                        <div class="row g-2 text-center small">
+                          <div class="col-4">
+                            <strong class="d-block text-muted"
+                              >Medida Eje</strong
+                            ><span id="txtMedEje">0</span>
+                          </div>
+                          <div class="col-4">
+                            <strong class="d-block text-muted"
+                              >Cavidad Eje</strong
+                            ><span id="txtCavEje">0</span>
+                          </div>
+                          <div class="col-4">
+                            <strong class="d-block text-muted">Sep. Eje</strong
+                            ><span id="txtSepEje">0</span>
+                          </div>
+                          <div class="col-12"><hr class="my-1" /></div>
+                          <div class="col-4">
+                            <strong class="d-block text-muted"
+                              >Medida Des</strong
+                            ><span id="txtMedDes">0</span>
+                          </div>
+                          <div class="col-4">
+                            <strong class="d-block text-muted"
+                              >Cavidad Des</strong
+                            ><span id="txtCavDes">0</span>
+                          </div>
+                          <div class="col-4">
+                            <strong class="d-block text-muted">Sep. Des</strong
+                            ><span id="txtSepDes">0</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-center">
+                  <span
+                    class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill"
+                  >
+                    FACTOR: <strong id="txtFactor" class="fs-6">0</strong>
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div class="text-center mt-4 mb-5">
-                <a href="/login" class="text-decoration-none text-muted small">
-                    <i class="fas fa-lock"></i> Panel Administrador
-                </a>
+            <div class="row mb-5">
+              <div class="col-md-6 mb-4">
+                <label class="fw-bold text-secondary mb-2 ms-2 small"
+                  >CANTIDAD DE MILLARES</label
+                >
+                <div class="input-group-pill">
+                  <button
+                    class="btn-circle-mini"
+                    type="button"
+                    onclick="adjustValue('millares', -1)"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    class="form-control text-center fs-4"
+                    id="millares"
+                    value="1"
+                    step="0.01"
+                    required
+                  />
+                  <button
+                    class="btn-circle-mini"
+                    type="button"
+                    onclick="adjustValue('millares', 1)"
+                  >
+                    +
+                  </button>
+                </div>
+                <div class="text-center mt-1">
+                  <small class="text-muted fw-bold">Millares</small>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <label class="fw-bold text-secondary mb-2 ms-2 small"
+                  >MERMA TÉCNICA</label
+                >
+                <div class="input-group-pill">
+                  <button
+                    class="btn-circle-mini"
+                    type="button"
+                    onclick="adjustValue('merma', -1)"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    class="form-control text-center fs-4"
+                    id="merma"
+                    value="10"
+                    step="0.01"
+                    required
+                  />
+                  <button
+                    class="btn-circle-mini"
+                    type="button"
+                    onclick="adjustValue('merma', 1)"
+                  >
+                    +
+                  </button>
+                </div>
+                <div class="text-center mt-1">
+                  <small class="text-muted fw-bold">Porcentaje (%)</small>
+                </div>
+              </div>
             </div>
+
+            <div id="resultSection" style="display: none">
+              <div
+                class="alert border-0 rounded-4 text-center p-4 mb-0"
+                style="
+                  background: linear-gradient(to right, #d4fc79, #96e6a1);
+                  box-shadow: 0 10px 20px rgba(150, 230, 161, 0.4);
+                "
+              >
+                <h5
+                  class="text-success fw-bold text-uppercase mb-3"
+                  style="letter-spacing: 2px; font-size: 0.9rem"
+                >
+                  Total a Solicitar
+                </h5>
+                <h1
+                  class="display-3 fw-bold text-dark mb-0"
+                  id="metrosConMerma"
+                >
+                  0.00
+                </h1>
+                <p class="fs-5 fw-bold text-dark opacity-75">metros lineales</p>
+                <div class="mt-4">
+                  <button
+                    type="button"
+                    class="btn-gradient w-100 shadow-sm"
+                    onclick="sendToWhatsapp()"
+                  >
+                    <i class="fab fa-whatsapp fa-lg me-2"></i> Enviar Pedido
+                  </button>
+                </div>
+                <div class="mt-2">
+                  <small class="text-dark opacity-50"
+                    >Neto sin merma: <span id="metrosBase">0</span> m</small
+                  >
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-// --- FUNCIÓN PARA ENVIAR WHATSAPP ---
-function sendToWhatsapp() {
-    const suajeTexto = $('#suajeSelect option:selected').text();
-    const millares = $('#millares').val();
-    const merma = $('#merma').val();
-    const totalMetros = $('#metrosConMerma').text();
-    const neto = $('#metrosBase').text();
-    
+  let suajesData = [];
+
+  function sendToWhatsapp() {
+    const suajeTexto = $("#suajeSelect option:selected").text();
+    const material = $("#txtMaterial").text();
+    const millares = $("#millares").val();
+    const merma = $("#merma").val();
+    const totalMetros = $("#metrosConMerma").text();
+    const neto = $("#metrosBase").text();
     const hoy = new Date();
-    const fecha = hoy.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const fecha = hoy.toLocaleDateString("es-MX", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    let mensaje = `📋 *PEDIDO DE MATERIAL* \n📅 ${fecha}\n\n🏷️ *Suaje:* ${suajeTexto}\n🧱 *Material:* ${material}\n📦 *Cantidad:* ${millares} millares\n📉 *Merma:* ${merma}%\n--------------------------\n✅ *TOTAL A PEDIR: ${totalMetros} mts*\n(Neto calculado: ${neto})`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, "_blank");
+  }
 
-    let mensaje = `📋 *REPORTE DE MATERIAL* \n`;
-    mensaje += `📅 ${fecha}\n\n`;
-    mensaje += `🏷️ *Suaje:* ${suajeTexto}\n`;
-    mensaje += `📦 *Millares:* ${millares} mil\n`;
-    mensaje += `📉 *Merma:* ${merma}%\n`;
-    mensaje += `--------------------------\n`;
-    mensaje += `✅ *TOTAL A PEDIR: ${totalMetros} mts*\n`;
-    mensaje += `(Neto calculado: ${neto})`;
-
-    const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
-}
-
-window.adjustValue = function(fieldId, delta) {
-    const input = $('#' + fieldId);
+  window.adjustValue = function (fieldId, delta) {
+    const input = $("#" + fieldId);
     let currentVal = parseFloat(input.val()) || 0;
     let newVal = currentVal + delta;
-    
-    if (fieldId === 'millares') {
-        if(newVal < 1) newVal = 1; 
-    } else if (fieldId === 'merma') {
-        if(newVal < 0) newVal = 0; 
-    }
-
+    if (fieldId === "millares" && newVal < 1) newVal = 1;
+    if (fieldId === "merma" && newVal < 0) newVal = 0;
     input.val(newVal);
-    input.trigger('input');
-};
+    input.trigger("input");
+  };
 
-$(document).ready(function() {
-    let suajesData = [];
-
-    $('#suajeSelect').select2({
-        theme: 'bootstrap-5',
-        placeholder: '🔍 Escriba código o nombre...',
-        allowClear: true,
-        width: '100%',
-        language: { noResults: function() { return "No encontrado"; } }
+  $(document).ready(function () {
+    $("#suajeSelect").select2({
+      theme: "bootstrap-5",
+      placeholder: "🔍 Escriba código o nombre...",
+      allowClear: true,
+      width: "100%",
+      language: {
+        noResults: function () {
+          return "No encontrado";
+        },
+      },
     });
 
-    $('#suajeSelect').on('select2:open', function() {
-        document.querySelector('.select2-search__field').focus();
+    $("#suajeSelect").on("select2:open", function () {
+      document.querySelector(".select2-search__field").focus();
     });
 
-    $.get('/api/suajes', function(data) {
-        suajesData = data;
-        data.forEach(suaje => {
-            $('#suajeSelect').append(new Option(`${suaje.suaje_code} - ${suaje.nombre}`, suaje.id));
-        });
+    $.get("/api/suajes", function (data) {
+      suajesData = data;
+      data.forEach((suaje) => {
+        $("#suajeSelect").append(
+          new Option(`${suaje.suaje_code} - ${suaje.nombre}`, suaje.id),
+        );
+      });
     });
 
     function autoCalculate() {
-        const suajeId = $('#suajeSelect').val();
-        let millares = $('#millares').val();
-        
-        if (!suajeId || !millares || millares <= 0) return;
+      const suajeId = $("#suajeSelect").val();
+      let millares = $("#millares").val();
+      let merma = $("#merma").val();
+      if (!suajeId || !millares || millares <= 0) return;
 
-        const data = {
-            cavidades: parseFloat($('#cavidades').val()),
-            separacion_mm: parseFloat($('#separacion').val()),
-            tamano_mm: parseFloat($('#tamano').val()),
-            millares: parseFloat(millares),
-            merma: parseFloat($('#merma').val() || 0)
-        };
-
-        $.ajax({
-            url: '/api/calculate',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function(result) {
-                $('#metrosBase').text(result.metros_base + ' m');
-                const finalVal = parseFloat(result.metros_con_merma).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                $('#metrosConMerma').text(finalVal);
-                
-                if ($('#resultSection').is(':hidden')) $('#resultSection').slideDown();
-            },
-            error: function(xhr) { console.log('Error:', xhr.responseText); }
-        });
+      $.ajax({
+        url: "/api/calculate",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          suaje_id: suajeId,
+          millares: millares,
+          merma: merma,
+        }),
+        success: function (result) {
+          $("#metrosBase").text(result.metros_base + " m");
+          const finalVal = parseFloat(result.metros_con_merma).toLocaleString(
+            "en-US",
+            { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+          );
+          $("#metrosConMerma").text(finalVal);
+          if ($("#resultSection").is(":hidden"))
+            $("#resultSection").slideDown();
+        },
+      });
     }
 
-    $('#suajeSelect').on('change', function() {
-        const suajeId = $(this).val();
-        if (!suajeId) {
-            $('#suajeInfoCard').slideUp();
-            $('#resultSection').slideUp();
-            return;
-        }
-        const suaje = suajesData.find(s => s.id == suajeId);
-        if (suaje) {
-            $('#displayNombre').text(suaje.nombre);
-            $('#displayCavidades').text(suaje.cavidades);
-            $('#displaySeparacion').text(parseFloat(suaje.separacion_mm).toFixed(2) + ' mm');
-            $('#displayTamano').text(parseFloat(suaje.tamano_mm).toFixed(2) + ' mm');
-            
-            $('#cavidades').val(suaje.cavidades);
-            $('#separacion').val(suaje.separacion_mm);
-            $('#tamano').val(suaje.tamano_mm);
-            
-            $('#suajeInfoCard').slideDown();
-            autoCalculate();
-        }
+    $("#suajeSelect").on("change", function () {
+      const suajeId = $(this).val();
+      if (!suajeId) {
+        $("#fichaTecnica").slideUp();
+        $("#resultSection").slideUp();
+        return;
+      }
+      const suaje = suajesData.find((s) => s.id == suajeId);
+      if (suaje) {
+        $("#txtNombre").text(suaje.nombre);
+        $("#txtCodigo").text(suaje.suaje_code);
+        $("#txtDientes").text(suaje.dientes);
+        $("#txtMaterial").text(suaje.material);
+        $("#txtMedEje").text(suaje.med_eje_mm);
+        $("#txtMedDes").text(suaje.med_des_mm);
+        $("#txtCavEje").text(suaje.cav_eje);
+        $("#txtCavDes").text(suaje.cav_des);
+        $("#txtSepEje").text(suaje.sep_eje_mm);
+        $("#txtSepDes").text(suaje.sep_des_mm);
+        $("#txtFactor").text(suaje.metros_x_millar);
+        $("#fichaTecnica").slideDown();
+        autoCalculate();
+      }
     });
 
-    $('#millares, #merma').on('input', function() {
-        autoCalculate();
-    });
-});
+    $("#millares, #merma").on("input", autoCalculate);
+  });
 </script>
 {% endblock %}
