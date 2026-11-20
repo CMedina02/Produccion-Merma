@@ -30,7 +30,7 @@ Abre `http://127.0.0.1:5000`. La base `etiquetas.db` debe estar presente junto a
 
 En producción, configura `FLASK_SECRET_KEY` con un secreto aleatorio persistente y `FLASK_ENV=production`; la aplicación falla al iniciar si falta la clave y activa cookies seguras. No reutilices una clave publicada. `FLASK_DEBUG=true` habilita el modo debug solo para desarrollo. Los formularios POST incluyen token CSRF generado por sesión.
 
-Para pruebas ejecuta `python -m unittest discover -s tests`. Las operaciones de aplicación usan una base SQLite temporal; el test de protección solo lee la base local para verificar que permanece intacta. Mantén fuera de Git `etiquetas.db`, otros `*.db`, `BASE SUAJES 2026.csv`, archivos `.env` y `venv/`. La base debe obtenerse por un canal autorizado; usa datos sintéticos para una demostración pública.
+Para pruebas ejecuta `python -m unittest discover -s tests`. Todas las pruebas usan exclusivamente una base SQLite temporal y no acceden a una base local u operativa. Mantén fuera de Git `etiquetas.db`, otros `*.db`, `BASE SUAJES 2026.csv`, archivos `.env` y `venv/`. La base debe obtenerse por un canal autorizado; usa datos sintéticos para una demostración pública.
 
 ## Estructura
 
@@ -40,8 +40,8 @@ crear_db.py          Inicialización e importación de una base nueva
 arreglar_admin.py    Cambio interactivo de contraseña de usuario
 templates/           Vistas Jinja
 static/              Estilos
-etiquetas.db         Base local SQLite (no distribuir)
-BASE SUAJES 2026.csv Fuente local de importación (no distribuir)
+etiquetas.db         Base local SQLite, excluida de Git
+BASE SUAJES 2026.csv Fuente local de importación, excluida de Git
 ```
 
 ## Ejemplo de uso
@@ -55,6 +55,6 @@ BASE SUAJES 2026.csv Fuente local de importación (no distribuir)
 
 - Las rutas de administración requieren sesión y rol administrador.
 - Las consultas SQL usan parámetros para los valores recibidos.
-- No se versionan nuevos entornos virtuales, archivos `.env` ni bases SQLite locales por el `.gitignore`.
-- La base `etiquetas.db`, el CSV operativo y `venv/` siguen versionados en Git. `.gitignore` no los retira ni elimina sus copias del historial. Retíralos del índice manualmente antes de publicar.
+- `venv/`, `etiquetas.db` y `BASE SUAJES 2026.csv` ya no están versionados en la rama principal y permanecen excluidos mediante `.gitignore`.
+- Las versiones anteriores de esos archivos pueden seguir accesibles en el historial de Git; `.gitignore` no las elimina.
 - La base actual fue conservada sin modificaciones por esta revisión. Si conserva la contraseña inicial conocida `admin123`, cámbiala mediante `python arreglar_admin.py` antes de desplegar.

@@ -26,6 +26,8 @@ def csrf_token():
 def csrf_protect(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        if request.method != 'POST':
+            return f(*args, **kwargs)
         supplied = request.form.get('csrf_token', '')
         expected = session.get('_csrf_token', '')
         if not supplied or not expected or not hmac.compare_digest(supplied, expected):
@@ -92,6 +94,7 @@ def login():
         
         if user and check_password_hash(user['password'], password):
             session.clear()
+            csrf_token()
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['role'] = user['role'] # Guardamos el rol (admin/operador)
