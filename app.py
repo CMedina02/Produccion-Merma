@@ -1,11 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 import sqlite3
 import os
+import math
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = 'clave-super-secreta-2026'
+secret_key = os.environ.get('FLASK_SECRET_KEY')
+if not secret_key and os.environ.get('FLASK_ENV') == 'production':
+    raise RuntimeError('FLASK_SECRET_KEY es obligatorio en producción.')
+app.config['SECRET_KEY'] = secret_key or os.urandom(32)
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production'
 
 # Configuración Base de Datos Local
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -51,14 +58,18 @@ def login():
             return redirect(url_for('index'))
 
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        if not username or not password:
+            flash('Ingresa usuario y contraseña', 'error')
+            return render_template('login.html'), 400
         
         conn = get_db_connection()
         user = conn.execute('SELECT * FROM usuarios WHERE username = ?', (username,)).fetchone()
         conn.close()
         
         if user and check_password_hash(user['password'], password):
+            session.clear()
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['role'] = user['role'] # Guardamos el rol (admin/operador)
@@ -106,11 +117,17 @@ def get_suajes():
 @app.route('/api/calculate', methods=['POST'])
 @login_required
 def calculate():
-    data = request.json
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({'error': 'Se requiere un objeto JSON válido'}), 400
     try:
         millares = float(data.get('millares', 0))
         merma = float(data.get('merma', 0))
-        suaje_id = data.get('suaje_id')
+        suaje_id = int(data.get('suaje_id'))
+        if not math.isfinite(millares) or millares <= 0:
+            raise ValueError('Los millares deben ser un número mayor que cero.')
+        if not math.isfinite(merma) or merma < 0:
+            raise ValueError('La merma debe ser un número igual o mayor que cero.')
         
         conn = get_db_connection()
         suaje = conn.execute('SELECT metros_x_millar FROM suajes WHERE id = ?', (suaje_id,)).fetchone()
@@ -128,8 +145,8 @@ def calculate():
             'metros_base': round(metros_base, 2),
             'metros_con_merma': round(metros_total, 2)
         })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+    except (TypeError, ValueError, OverflowError):
+        return jsonify({'error': 'Revisa el suaje, los millares y el porcentaje de merma.'}), 400
 
 # --- PANEL DE ADMINISTRADOR ---
 
@@ -145,6 +162,7 @@ def admin_dashboard():
 
 # GESTIÓN DE SUAJES (CRUD)
 @app.route('/admin/add', methods=['POST'])
+@login_required
 @admin_required
 def admin_add():
     try:
@@ -173,6 +191,7 @@ def admin_add():
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/edit/<int:id>', methods=['POST'])
+@login_required
 @admin_required
 def admin_edit(id):
     try:
@@ -199,6 +218,7 @@ def admin_edit(id):
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/delete/<int:id>', methods=['POST'])
+@login_required
 @admin_required
 def admin_delete(id):
     try:
@@ -214,13 +234,14 @@ def admin_delete(id):
 # --- GESTIÓN DE USUARIOS (NUEVO) ---
 
 @app.route('/admin/users/add', methods=['POST'])
+@login_required
 @admin_required
 def user_add():
-    username = request.form['username']
-    password = request.form['password']
-    role = request.form['role']
+    username = request.form.get('username', '').strip()
+    password = request.form.get('password', '')
+    role = request.form.get('role', '')
     
-    if not username or not password:
+    if not username or not password or role not in ('admin', 'operador'):
         flash('Faltan datos', 'error')
         return redirect(url_for('admin_dashboard'))
 
@@ -241,6 +262,7 @@ def user_add():
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/users/delete/<int:id>', methods=['POST'])
+@login_required
 @admin_required
 def user_delete(id):
     # Protección: No te puedes borrar a ti mismo si estás logueado
@@ -256,4 +278,4 @@ def user_delete(id):
     return redirect(url_for('admin_dashboard'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=os.environ.get('FLASK_DEBUG', '').lower() == 'true')

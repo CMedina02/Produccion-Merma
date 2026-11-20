@@ -1,35 +1,41 @@
+"""Actualiza de forma interactiva la contraseña de una cuenta existente."""
+import getpass
+import os
 import sqlite3
+
 from werkzeug.security import generate_password_hash
 
-# Configuración
-nombre_db = 'etiquetas.db'
-usuario = 'admin'
-nueva_contrasena = 'admin123' # La contraseña que quieres usar
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, 'etiquetas.db')
+
 
 def arreglar_password():
+    usuario = input('Nombre de usuario que se actualizará: ').strip()
+    if not usuario:
+        print('ERROR: El nombre de usuario no puede estar vacío.')
+        return
+    nueva_contrasena = getpass.getpass('Nueva contraseña (mínimo 12 caracteres): ')
+    if len(nueva_contrasena) < 12:
+        print('ERROR: La contraseña debe tener al menos 12 caracteres.')
+        return
+    confirmacion = getpass.getpass('Confirma la nueva contraseña: ')
+    if nueva_contrasena != confirmacion:
+        print('ERROR: Las contraseñas no coinciden.')
+        return
+
     try:
-        # 1. Conectar a la base de datos
-        conn = sqlite3.connect(nombre_db)
-        cursor = conn.cursor()
-
-        # 2. Generar el hash seguro (encriptación)
-        password_encriptada = generate_password_hash(nueva_contrasena)
-
-        # 3. Actualizar el usuario admin
-        cursor.execute("UPDATE usuarios SET password = ? WHERE username = ?", 
-                       (password_encriptada, usuario))
-        
-        if cursor.rowcount > 0:
-            print(f"✅ ¡Éxito! La contraseña del usuario '{usuario}' ha sido actualizada y encriptada.")
-            print(f"   Nueva contraseña para entrar: {nueva_contrasena}")
+        with sqlite3.connect(DATABASE) as conn:
+            cursor = conn.execute(
+                'UPDATE usuarios SET password = ? WHERE username = ?',
+                (generate_password_hash(nueva_contrasena), usuario),
+            )
+        if cursor.rowcount:
+            print(f"Contraseña actualizada para '{usuario}'.")
         else:
-            print(f"⚠️ No se encontró al usuario '{usuario}'. ¿Seguro que existe?")
+            print(f"No se encontró al usuario '{usuario}'.")
+    except sqlite3.Error as error:
+        print(f'Error de base de datos: {error}')
 
-        conn.commit()
-        conn.close()
-
-    except Exception as e:
-        print(f"❌ Error: {e}")
 
 if __name__ == '__main__':
     arreglar_password()

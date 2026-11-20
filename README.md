@@ -1,76 +1,62 @@
-# ETIQUETAS Y ETIQUETADORAS DEL SURESTE - Calculadora de Material
+# Producción Merma
 
-Aplicación web desarrollada por Eduardo Medina para calcular materiales de producción.
+Aplicación web para consultar suajes registrados y estimar el material requerido por millar, incluyendo el porcentaje de merma. El panel administrativo permite gestionar suajes y usuarios.
 
-## Características
+## Funcionalidades
 
-- **Calculadora Pública**: Interfaz intuitiva para calcular metros de material necesarios
-- **Base de Datos**: SQLite con más de 1800 suajes registrados
-- **Modo Manual**: Permite cálculos con suajes no registrados
-- **Panel de Administración**: CRUD completo para gestionar suajes
-- **Diseño Responsivo**: Funciona perfectamente en móviles y PC
-
-## Instalación
-
-### Local
-
-```bash
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Ejecutar aplicación
-python app.py
-```
-
-La aplicación estará disponible en `http://localhost:5000`
-
-### Despliegue en PythonAnywhere
-
-1. Sube los archivos a tu cuenta de PythonAnywhere
-2. Crea un nuevo Web App con Flask
-3. Configura el WSGI file para apuntar a `app.py`
-4. Instala las dependencias desde requirements.txt
-5. Recarga la aplicación
-
-## Uso
-
-### Calculadora Pública
-
-1. Busca el suaje por código o nombre
-2. Los datos (cavidades, separación, tamaño) se llenan automáticamente
-3. Ingresa la cantidad de millares y porcentaje de merma
-4. Haz clic en "Calcular Material"
-
-### Modo Manual
-
-1. Activa el checkbox "¿Suaje no registrado?"
-2. Ingresa manualmente: cavidades, separación y tamaño
-3. Completa millares y merma
-4. Calcula el resultado
-
-### Panel de Administración
-
-- **Usuario por defecto**: admin
-- **Contraseña por defecto**: admin123
-
-**IMPORTANTE**: Cambia la contraseña después del primer inicio de sesión.
-
-## Fórmula de Cálculo
-
-```
-Metros = (((separación_mm + tamaño_mm) * (millares * 1000)) / cavidades) / 1000
-Metros con Merma = Metros * (1 + merma/100)
-```
-
-## Seguridad
-
-- Las contraseñas se almacenan con hash usando Werkzeug
-- Sesiones protegidas con secret_key
-- Acceso administrativo protegido con decorador @login_required
+- Inicio de sesión con contraseñas almacenadas mediante hashes de Werkzeug.
+- Consulta de fichas técnicas de suajes desde SQLite.
+- Cálculo de metros base y metros con merma.
+- Administración de suajes y cuentas con roles `admin` y `operador`.
+- Interfaz adaptable a escritorio y móvil.
 
 ## Tecnologías
 
-- **Backend**: Python 3 + Flask
-- **Base de Datos**: SQLite
-- **Frontend**: HTML5 + Bootstrap 5 + jQuery + Select2
-- **Diseño**: CSS3 personalizado con diseño moderno y profesional
+Python 3, Flask, SQLite, pandas (importación CSV), Jinja, Bootstrap, jQuery y Select2.
+
+## Requisitos e inicio local
+
+Se recomienda Python 3.10 o posterior.
+
+```bash
+python -m venv .venv
+source .venv/bin/activate       # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+export FLASK_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+python app.py
+```
+
+Abre `http://127.0.0.1:5000`. La base existente `etiquetas.db` debe estar presente junto a `app.py`. No ejecutes `crear_db.py` sobre una base existente: el script ahora se detiene sin modificarla. Para inicializar una base nueva, coloca el CSV fuente junto al script y ejecuta `python crear_db.py`; se solicitará una contraseña inicial de al menos 12 caracteres, o puede proporcionarse con `ADMIN_INITIAL_PASSWORD`.
+
+En producción, configura `FLASK_SECRET_KEY` con un secreto aleatorio persistente y `FLASK_ENV=production`; la aplicación falla al iniciar si falta la clave y activa cookies seguras. No reutilices una clave publicada. `FLASK_DEBUG=true` habilita el modo debug solo para desarrollo.
+
+## Estructura
+
+```text
+app.py               Rutas Flask, autenticación, API y CRUD
+crear_db.py          Inicialización e importación de una base nueva
+arreglar_admin.py    Cambio interactivo de contraseña de usuario
+templates/           Vistas Jinja
+static/              Estilos
+etiquetas.db         Base de datos SQLite
+BASE SUAJES 2026.csv Fuente de importación de suajes
+```
+
+## Ejemplo de uso
+
+1. Inicia sesión con una cuenta existente.
+2. Busca un suaje por código o nombre.
+3. Indica los millares y el porcentaje de merma.
+4. La aplicación calcula `metros_base = millares × metros_x_millar` y `metros_con_merma = metros_base × (1 + merma / 100)`.
+
+## Seguridad y datos
+
+- Las rutas de administración requieren sesión y rol administrador.
+- Las consultas SQL usan parámetros para los valores recibidos.
+- No se versionan nuevos entornos virtuales, archivos `.env` ni bases SQLite locales por el `.gitignore`.
+- La base `etiquetas.db`, el CSV operativo y `venv/` ya están versionados en el repositorio. `.gitignore` no los retira ni elimina sus copias del historial; revisa esos datos y gestiona su exclusión manualmente antes de hacer público el repositorio.
+- La base actual fue conservada sin modificaciones por esta revisión. Si conserva la contraseña inicial conocida `admin123`, cámbiala mediante `python arreglar_admin.py` antes de desplegar.
+
+## Limitaciones conocidas
+
+Las operaciones administrativas usan formularios POST, pero aún falta protección CSRF. Antes de exponer el sitio públicamente, agrega y valida protección CSRF para los formularios de administración.

@@ -2,10 +2,12 @@ import sqlite3
 import pandas as pd
 import os
 import re
+import getpass
 from werkzeug.security import generate_password_hash
 
-CSV_FILE = 'BASE SUAJES 2026.csv'
-DATABASE = 'etiquetas.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CSV_FILE = os.path.join(BASE_DIR, 'BASE SUAJES 2026.csv')
+DATABASE = os.path.join(BASE_DIR, 'etiquetas.db')
 
 def correccion_lexica(texto):
     """
@@ -92,8 +94,18 @@ def crear_base_datos():
         print("ERROR CRITICO: No se encontró columna 'Suaje'.")
         return
 
-    # 3. CREAR BASE DE DATOS (AQUÍ ESTÁ EL CAMBIO DE SEGURIDAD)
-    if os.path.exists(DATABASE): os.remove(DATABASE)
+    # Nunca sobrescribir una base existente: puede contener datos operativos.
+    if os.path.exists(DATABASE):
+        print(f"ERROR: {DATABASE} ya existe. No se modificó.")
+        return
+    password = os.environ.get('ADMIN_INITIAL_PASSWORD') or getpass.getpass(
+        'Contraseña para la cuenta administradora inicial: '
+    )
+    if len(password) < 12:
+        print('ERROR: La contraseña inicial debe tener al menos 12 caracteres.')
+        return
+
+    # 3. CREAR BASE DE DATOS
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
@@ -108,8 +120,8 @@ def crear_base_datos():
     ''')
     
     # Creamos el SUPER ADMIN por defecto
-    cursor.execute("INSERT INTO usuarios (username, password, role) VALUES (?, ?, ?)", 
-                   ('admin', generate_password_hash('admin123'), 'admin'))
+    cursor.execute("INSERT INTO usuarios (username, password, role) VALUES (?, ?, ?)",
+                   ('admin', generate_password_hash(password), 'admin'))
     
     print("✅ Usuario 'admin' creado con privilegios de administrador.")
 
