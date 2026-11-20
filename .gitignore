@@ -13,6 +13,7 @@ instance/
 *.sqlite
 *.sqlite3
 *.db
+BASE SUAJES 2026.csv
 
 # Editor and OS files
 .DS_Store

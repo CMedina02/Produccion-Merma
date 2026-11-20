@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 import sqlite3
 import os
 import math
+import secrets
+import hmac
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 
@@ -13,6 +15,25 @@ app.config['SECRET_KEY'] = secret_key or os.urandom(32)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production'
+
+def csrf_token():
+    token = session.get('_csrf_token')
+    if token is None:
+        token = secrets.token_urlsafe(32)
+        session['_csrf_token'] = token
+    return token
+
+def csrf_protect(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        supplied = request.form.get('csrf_token', '')
+        expected = session.get('_csrf_token', '')
+        if not supplied or not expected or not hmac.compare_digest(supplied, expected):
+            return 'Solicitud CSRF inválida.', 400
+        return f(*args, **kwargs)
+    return decorated_function
+
+app.jinja_env.globals['csrf_token'] = csrf_token
 
 # Configuración Base de Datos Local
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -49,6 +70,7 @@ def admin_required(f):
 # --- RUTAS PÚBLICAS / LOGIN ---
 
 @app.route('/login', methods=['GET', 'POST'])
+@csrf_protect
 def login():
     # Si ya está logueado, redirigir según su rol
     if 'user_id' in session:
@@ -162,6 +184,7 @@ def admin_dashboard():
 
 # GESTIÓN DE SUAJES (CRUD)
 @app.route('/admin/add', methods=['POST'])
+@csrf_protect
 @login_required
 @admin_required
 def admin_add():
@@ -191,6 +214,7 @@ def admin_add():
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/edit/<int:id>', methods=['POST'])
+@csrf_protect
 @login_required
 @admin_required
 def admin_edit(id):
@@ -218,6 +242,7 @@ def admin_edit(id):
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/delete/<int:id>', methods=['POST'])
+@csrf_protect
 @login_required
 @admin_required
 def admin_delete(id):
@@ -234,6 +259,7 @@ def admin_delete(id):
 # --- GESTIÓN DE USUARIOS (NUEVO) ---
 
 @app.route('/admin/users/add', methods=['POST'])
+@csrf_protect
 @login_required
 @admin_required
 def user_add():
@@ -262,6 +288,7 @@ def user_add():
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/users/delete/<int:id>', methods=['POST'])
+@csrf_protect
 @login_required
 @admin_required
 def user_delete(id):

@@ -22,6 +22,7 @@ endblock %} {% block content %}
     {% endfor %} {% endif %} {% endwith %}
 
     <form action="{{ url_for('login') }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div class="mb-4">
         <input
           type="text"
